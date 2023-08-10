@@ -1,0 +1,291 @@
+~[tlist_sql;
+WITH form_packet AS(
+				SELECT U_FB_FORM.form_title
+					, U_FB_FORM.id
+					, U_FB_FORM.approval
+				FROM
+			U_FB_FORM
+		WHERE U_FB_FORM.FORM_CATEGORY IN('03 - Sports')
+			AND U_FB_FORM.PUBLISH = 'true'
+			AND U_FB_FORM.SHARING_PARENT > 0
+			AND U_FB_FORM.id > 0
+			),
+			current_response AS(
+				SELECT
+			U_FB_FORM_RESPONSE.STUDENT_ID,
+					U_FB_FORM_RESPONSE.U_FB_FORM_ID,
+					MAX(U_FB_FORM_RESPONSE.id) max_id
+		FROM
+			U_FB_FORM_RESPONSE
+		GROUP BY
+			U_FB_FORM_RESPONSE.STUDENT_ID,
+					U_FB_FORM_RESPONSE.U_FB_FORM_ID
+			)
+		 ,form_status AS(
+			
+				SELECT
+		U_FB_FORM.FORM_TITLE,
+				MAX(
+					CASE WHEN U_FB_FORM_RESPONSE.RESPONSE_TYPE = 'A' THEN
+				'1'
+			ELSE
+				U_FB_FORM_RESPONSE.APPROVAL
+			END) approval,
+				students.id student_id,
+				MAX(U_FB_FORM_RESPONSE.U_FB_FORM_ID) U_FB_FORM_ID,
+				MAX(U_FB_FORM_RESPONSE.ID) responseid,
+				MAX(U_FB_FORM_RESPONSE.REJECT_NOTE) REJECT_NOTE
+	FROM
+		students
+		INNER JOIN form_packet U_FB_FORM ON 1 = 1
+		INNER JOIN U_FB_FORM_RESPONSE ON U_FB_FORM_RESPONSE.STUDENT_ID = students.id
+			AND COALESCE(U_FB_FORM_RESPONSE.ARCHIVED,'0') != '1'
+			AND U_FB_FORM_RESPONSE.RESPONSE_TYPE IN('G','S','A')
+			AND U_FB_FORM_RESPONSE.U_FB_FORM_ID = U_FB_FORM.id
+		INNER JOIN current_response ON current_response.max_id = U_FB_FORM_RESPONSE.id
+	GROUP BY
+		students.id,
+				U_FB_FORM.form_title
+				
+			), started_packet AS(
+				SELECT form_status.student_id
+				FROM form_packet
+					INNER JOIN current_response ON current_response.U_FB_FORM_ID = form_packet.id
+			INNER JOIN form_status ON form_status.U_FB_FORM_ID = form_packet.id
+		WHERE form_packet.form_title = 'PIAA - 01 Student Info'
+			GROUP BY form_status.student_id
+			), fall_sport AS(
+				SELECT form_status.student_id
+					, MAX(U_FB_FORM_RESPONSE_DETAIL.RESPONSE_VALUE) sports
+				FROM form_packet
+					INNER JOIN current_response ON current_response.U_FB_FORM_ID = form_packet.id
+			INNER JOIN U_FB_FORM_ELEMENT ON U_FB_FORM_ELEMENT.U_FB_FORM_ID = form_packet.id
+				AND U_FB_FORM_ELEMENT.CSS_CLASS = 'fall-sports'
+			INNER JOIN form_status ON form_status.U_FB_FORM_ID = form_packet.id
+			INNER JOIN U_FB_FORM_RESPONSE_ELEMENT ON U_FB_FORM_RESPONSE_ELEMENT.U_FB_FORM_ELEMENT_ID = U_FB_FORM_ELEMENT.ID
+				AND U_FB_FORM_RESPONSE_ELEMENT.U_FB_FORM_RESPONSE_ID = form_status.responseid
+			INNER JOIN U_FB_FORM_RESPONSE_DETAIL ON U_FB_FORM_RESPONSE_DETAIL.U_FB_FORM_RESPONSE_ID = form_status.responseid
+				AND U_FB_FORM_RESPONSE_DETAIL.U_FB_FORM_RESPONSE_ELEMENT_ID = U_FB_FORM_RESPONSE_ELEMENT.id
+		WHERE form_packet.form_title = 'PIAA - 01 Student Info'
+		GROUP BY form_status.student_id
+			), winter_sport AS(
+				SELECT form_status.student_id
+					, MAX(U_FB_FORM_RESPONSE_DETAIL.RESPONSE_VALUE) sports
+				FROM form_packet
+					INNER JOIN current_response ON current_response.U_FB_FORM_ID = form_packet.id
+			INNER JOIN U_FB_FORM_ELEMENT ON U_FB_FORM_ELEMENT.U_FB_FORM_ID = form_packet.id
+				AND U_FB_FORM_ELEMENT.CSS_CLASS = 'winter-sports'
+			INNER JOIN form_status ON form_status.U_FB_FORM_ID = form_packet.id
+			INNER JOIN U_FB_FORM_RESPONSE_ELEMENT ON U_FB_FORM_RESPONSE_ELEMENT.U_FB_FORM_ELEMENT_ID = U_FB_FORM_ELEMENT.ID
+				AND U_FB_FORM_RESPONSE_ELEMENT.U_FB_FORM_RESPONSE_ID = form_status.responseid
+			INNER JOIN U_FB_FORM_RESPONSE_DETAIL ON U_FB_FORM_RESPONSE_DETAIL.U_FB_FORM_RESPONSE_ID = form_status.responseid
+				AND U_FB_FORM_RESPONSE_DETAIL.U_FB_FORM_RESPONSE_ELEMENT_ID = U_FB_FORM_RESPONSE_ELEMENT.id
+		WHERE form_packet.form_title = 'PIAA - 01 Student Info'
+		GROUP BY form_status.student_id
+			), spring_sport AS(
+				SELECT form_status.student_id
+					, MAX(U_FB_FORM_RESPONSE_DETAIL.RESPONSE_VALUE) sports
+				FROM form_packet
+					INNER JOIN current_response ON current_response.U_FB_FORM_ID = form_packet.id
+			INNER JOIN U_FB_FORM_ELEMENT ON U_FB_FORM_ELEMENT.U_FB_FORM_ID = form_packet.id
+				AND U_FB_FORM_ELEMENT.CSS_CLASS = 'spring-sports'
+			INNER JOIN form_status ON form_status.U_FB_FORM_ID = form_packet.id
+			INNER JOIN U_FB_FORM_RESPONSE_ELEMENT ON U_FB_FORM_RESPONSE_ELEMENT.U_FB_FORM_ELEMENT_ID = U_FB_FORM_ELEMENT.ID
+				AND U_FB_FORM_RESPONSE_ELEMENT.U_FB_FORM_RESPONSE_ID = form_status.responseid
+			INNER JOIN U_FB_FORM_RESPONSE_DETAIL ON U_FB_FORM_RESPONSE_DETAIL.U_FB_FORM_RESPONSE_ID = form_status.responseid
+				AND U_FB_FORM_RESPONSE_DETAIL.U_FB_FORM_RESPONSE_ELEMENT_ID = U_FB_FORM_RESPONSE_ELEMENT.id
+		WHERE form_packet.form_title = 'PIAA - 01 Student Info'
+		GROUP BY form_status.student_id
+			), fall_level AS(
+					SELECT form_status.student_id
+					, MAX(U_FB_FORM_RESPONSE_DETAIL.RESPONSE_VALUE) sport_level
+				FROM form_packet
+					INNER JOIN current_response ON current_response.U_FB_FORM_ID = form_packet.id
+			INNER JOIN U_FB_FORM_ELEMENT ON U_FB_FORM_ELEMENT.U_FB_FORM_ID = form_packet.id
+				AND U_FB_FORM_ELEMENT.CSS_CLASS = 'fall-level'
+			INNER JOIN form_status ON form_status.U_FB_FORM_ID = form_packet.id
+			INNER JOIN U_FB_FORM_RESPONSE_ELEMENT ON U_FB_FORM_RESPONSE_ELEMENT.U_FB_FORM_ELEMENT_ID = U_FB_FORM_ELEMENT.ID
+				AND U_FB_FORM_RESPONSE_ELEMENT.U_FB_FORM_RESPONSE_ID = form_status.responseid
+			INNER JOIN U_FB_FORM_RESPONSE_DETAIL ON U_FB_FORM_RESPONSE_DETAIL.U_FB_FORM_RESPONSE_ID = form_status.responseid
+				AND U_FB_FORM_RESPONSE_DETAIL.U_FB_FORM_RESPONSE_ELEMENT_ID = U_FB_FORM_RESPONSE_ELEMENT.id
+		WHERE form_packet.form_title = 'PIAA - 01 Student Info'
+		GROUP BY form_status.student_id
+				), winter_level AS(
+					SELECT form_status.student_id
+					, MAX(U_FB_FORM_RESPONSE_DETAIL.RESPONSE_VALUE) sport_level
+				FROM form_packet
+					INNER JOIN current_response ON current_response.U_FB_FORM_ID = form_packet.id
+			INNER JOIN U_FB_FORM_ELEMENT ON U_FB_FORM_ELEMENT.U_FB_FORM_ID = form_packet.id
+				AND U_FB_FORM_ELEMENT.CSS_CLASS = 'winter-level'
+			INNER JOIN form_status ON form_status.U_FB_FORM_ID = form_packet.id
+			INNER JOIN U_FB_FORM_RESPONSE_ELEMENT ON U_FB_FORM_RESPONSE_ELEMENT.U_FB_FORM_ELEMENT_ID = U_FB_FORM_ELEMENT.ID
+				AND U_FB_FORM_RESPONSE_ELEMENT.U_FB_FORM_RESPONSE_ID = form_status.responseid
+			INNER JOIN U_FB_FORM_RESPONSE_DETAIL ON U_FB_FORM_RESPONSE_DETAIL.U_FB_FORM_RESPONSE_ID = form_status.responseid
+				AND U_FB_FORM_RESPONSE_DETAIL.U_FB_FORM_RESPONSE_ELEMENT_ID = U_FB_FORM_RESPONSE_ELEMENT.id
+		WHERE form_packet.form_title = 'PIAA - 01 Student Info'
+		GROUP BY form_status.student_id
+				), spring_level AS(
+					SELECT form_status.student_id
+					, MAX(U_FB_FORM_RESPONSE_DETAIL.RESPONSE_VALUE) sport_level
+				FROM form_packet
+					INNER JOIN current_response ON current_response.U_FB_FORM_ID = form_packet.id
+			INNER JOIN U_FB_FORM_ELEMENT ON U_FB_FORM_ELEMENT.U_FB_FORM_ID = form_packet.id
+				AND U_FB_FORM_ELEMENT.CSS_CLASS = 'spring-level'
+			INNER JOIN form_status ON form_status.U_FB_FORM_ID = form_packet.id
+			INNER JOIN U_FB_FORM_RESPONSE_ELEMENT ON U_FB_FORM_RESPONSE_ELEMENT.U_FB_FORM_ELEMENT_ID = U_FB_FORM_ELEMENT.ID
+				AND U_FB_FORM_RESPONSE_ELEMENT.U_FB_FORM_RESPONSE_ID = form_status.responseid
+			INNER JOIN U_FB_FORM_RESPONSE_DETAIL ON U_FB_FORM_RESPONSE_DETAIL.U_FB_FORM_RESPONSE_ID = form_status.responseid
+				AND U_FB_FORM_RESPONSE_DETAIL.U_FB_FORM_RESPONSE_ELEMENT_ID = U_FB_FORM_RESPONSE_ELEMENT.id
+		WHERE form_packet.form_title = 'PIAA - 01 Student Info'
+		GROUP BY form_status.student_id
+				), guardian_contact AS (
+
+						SELECT students.dcid STUDENTSDCID
+						, LISTAGG(DISTINCT emailaddress.EMAILADDRESS, ', ') WITHIN GROUP(ORDER BY
+				emailaddress.EMAILADDRESS) portal_email
+						, LISTAGG(DISTINCT
+				CASE WHEN phonenumber.phonenumber IS NOT NULL THEN
+				'('
+							|| SUBSTR(phonenumber.phonenumber, 0, 3)
+							|| ') '
+							|| SUBSTR(phonenumber.phonenumber, 4, 3)
+							|| '-'
+							|| SUBSTR(phonenumber.phonenumber, 7, 4)
+
+				ELSE '' END
+							, ', ') WITHIN GROUP(ORDER BY phonenumber.phonenumber) contact_phone
+				FROM students
+				INNER JOIN studentcontactassoc ON studentcontactassoc.studentdcid = students.dcid
+				INNER JOIN STUDENTCONTACTDETAIL ON STUDENTCONTACTDETAIL.STUDENTCONTACTASSOCID = STUDENTCONTACTASSOC.STUDENTCONTACTASSOCID
+					AND studentcontactdetail.ISCUSTODIAL = 1
+				INNER JOIN person ON person.id = studentcontactassoc.personid
+				LEFT JOIN PERSONEMAILADDRESSASSOC ON PERSONEMAILADDRESSASSOC.PERSONID = person.id
+				LEFT JOIN emailaddress ON emailaddress.emailaddressid = PERSONEMAILADDRESSASSOC.EMAILADDRESSID
+					LEFT JOIN PERSONPHONENUMBERASSOC ON PERSONPHONENUMBERASSOC.PERSONID = person.id
+					LEFT JOIN PHONENUMBER ON PHONENUMBER.PHONENUMBERID = PERSONPHONENUMBERASSOC.PHONENUMBERID
+				GROUP BY students.dcid
+					)
+
+SELECT JSON_ARRAYAGG(
+		JSON_OBJECT( * ) ORDER BY last_name
+			, COALESCE( nickname, first_name) RETURNING CLOB
+	) json_obj
+FROM (
+SELECT student_form_packet.studentsdcid
+	, students.id
+	, students.last_name
+	, students.first_name
+	, CASE WHEN U_DEF_EXT_STUDENTS.nickname IS NOT NULL THEN '(' || U_DEF_EXT_STUDENTS.nickname || ')'
+		ELSE '' END nickname
+	, students.grade_level
+	, students.student_number
+	, MAX( guardian_contact.portal_email ) portal_email
+	, MAX( guardian_contact.contact_phone ) contact_phone
+	, 
+		CASE WHEN fall_level.sport_level IS NOT NULL THEN fall_level.sport_level || ' ' ELSE '' END
+		|| REPLACE(
+		REPLACE(
+		REPLACE(
+		fall_sport.sports
+		, 'None, ', '')
+		, ', None', '')
+		, 'None', '') fall_sports
+	, CASE WHEN winter_level.sport_level IS NOT NULL THEN winter_level.sport_level || ' ' ELSE '' END
+		|| REPLACE(
+		REPLACE(
+		REPLACE(
+		winter_sport.sports
+		, 'None, ', '')
+		, ', None', '')
+		, 'None', '') winter_sports
+	, 
+	CASE WHEN fall_level.sport_level IS NOT NULL THEN fall_level.sport_level || ' ' ELSE '' END
+|| REPLACE(
+		REPLACE(
+		REPLACE(
+		spring_sport.sports
+		, 'None, ', '')
+		, ', None', '')
+		, 'None', '') spring_sports
+	, CASE WHEN U_DEF_EXT_STUDENTS.ONLINE_PIAA_REMINDER IS NOT NULL THEN 'Last Reminder' || CHR(58) || ' ' || TO_CHAR(U_DEF_EXT_STUDENTS.ONLINE_PIAA_REMINDER, 'MM/DD/YYYY')
+		ELSE '' END ONLINE_PIAA_REMINDER
+	, JSON_ARRAYAGG(
+		JSON_OBJECT( student_form_packet.* ) ORDER BY student_form_packet.studentsdcid, student_form_packet.title RETURNING CLOB
+	) form_packet,
+	TO_CHAR( U_DEF_EXT_STUDENTS.ONLINE_PIAA_NOTE ) ONLINE_PIAA_NOTE,
+	CASE WHEN COALESCE( U_DEF_EXT_STUDENTS.IMPACT, 0 ) = 1 THEN 'checked' ELSE '' END IMPACT_CHECKED,
+	CASE WHEN COALESCE(U_DEF_EXT_STUDENTS.IMPACT, 0) = 1 THEN '✔' ELSE '' END IMPACT,
+	CASE WHEN U_DEF_EXT_STUDENTS.IMPACT_DATE IS NOT NULL THEN TO_CHAR(U_DEF_EXT_STUDENTS.IMPACT_DATE, 'YYYY-MM-DD') ELSE '' END IMPACT_DATE
+
+FROM students
+	INNER JOIN ( 
+		SELECT DISTINCT
+			students.dcid STUDENTSDCID
+			, form_packet.form_title title
+			, form_status.U_FB_FORM_ID formid
+			, form_status.responseid
+			, CASE WHEN form_packet.approval = 'true'
+				THEN CASE WHEN form_status.approval IS NULL THEN 'Missing'
+					WHEN form_status.approval = 1 THEN 'Approved'
+					WHEN form_status.approval = 2 THEN 'Rejected'
+					ELSE 'Pending' END
+				WHEN form_status.responseid IS NOT NULL THEN 'Submitted'
+				ELSE 'Missing' END status
+			, form_status.reject_note reject
+			, '' note
+			, '' doc_id
+			, '' document_name
+	
+		FROM students
+			INNER JOIN started_packet ON started_packet.student_id = students.id
+			INNER JOIN U_DEF_EXT_STUDENTS ON U_DEF_EXT_STUDENTS.STUDENTSDCID = STUDENTS.DCID
+				AND (~(curschoolid) IN(0, 4) OR students.schoolid = ~(curschoolid))
+			INNER JOIN schools ON schools.school_number = students.schoolid
+			INNER JOIN form_packet ON 1 = 1
+		
+			LEFT JOIN form_status ON form_status.student_id = students.id
+				AND form_status.form_title = form_packet.form_title
+		
+		WHERE students.last_name NOT LIKE 'DUPE%'
+			AND students.last_name != 'Tester'
+
+		) student_form_packet ON student_form_packet.studentsdcid = students.dcid
+		LEFT JOIN U_DEF_EXT_STUDENTS ON U_DEF_EXT_STUDENTS.STUDENTSDCID = students.dcid
+		LEFT JOIN guardian_contact ON guardian_contact.studentsdcid = students.dcid
+		LEFT JOIN fall_sport ON fall_sport.student_id = students.id
+		LEFT JOIN winter_sport ON winter_sport.student_id = students.id
+		LEFT JOIN spring_sport ON spring_sport.student_id = students.id
+
+		LEFT JOIN fall_level ON fall_level.student_id = students.id
+		LEFT JOIN winter_level ON winter_level.student_id = students.id
+		LEFT JOIN spring_level ON spring_level.student_id = students.id
+
+		WHERE (
+		students.grade_level IN ( 10, 11, 12)
+			AND student_form_packet.title = 'PIAA - 12 MEMBER SCHOOL ATHLETIC TRANSFER WAIVER REQUEST FORM'
+			AND COALESCE( U_DEF_EXT_STUDENTS.ONLINE_REG_SCHOOL, 0) = 2080
+	)
+
+	OR student_form_packet.title != 'PIAA - 12 MEMBER SCHOOL ATHLETIC TRANSFER WAIVER REQUEST FORM'
+
+
+GROUP BY student_form_packet.studentsdcid
+	, students.id
+	, students.last_name
+	, students.first_name
+	, U_DEF_EXT_STUDENTS.nickname
+	, students.grade_level
+	, students.student_number
+	, fall_sport.sports
+	, winter_sport.sports
+	, spring_sport.sports
+	, U_DEF_EXT_STUDENTS.ONLINE_PIAA_REMINDER
+	, U_DEF_EXT_STUDENTS.IMPACT
+	, U_DEF_EXT_STUDENTS.IMPACT_DATE
+	, TO_CHAR( U_DEF_EXT_STUDENTS.ONLINE_PIAA_NOTE )
+	, U_DEF_EXT_STUDENTS.ONLINE_REG_SCHOOL
+	, fall_level.sport_level
+	, winter_level.sport_level
+	, spring_level.sport_level
+	
+) foo;nonemessage=[]]~(json_obj)[/tlist_sql]

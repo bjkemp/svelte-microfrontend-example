@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<plugin version="23.8.4" xmlns="http://plugin.powerschool.pearson.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://plugin.powerschool.pearson.com plugin.xsd" name="TE Tech - Svelte DATA" description="Svelte component testing">
+  <oauth/>
+  <publisher name="Benjamin Kemp">
+    <contact email="kempb@tesd.net"/>
+  </publisher>
+</plugin>

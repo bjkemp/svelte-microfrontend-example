@@ -1,0 +1,3 @@
+~[if.~[x:loginusername]=benjamin]
+<script type="module" src="/TE_Tech_Svelte/is-svelte.js"></script>
+[/if]

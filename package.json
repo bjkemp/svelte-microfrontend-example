@@ -1,6 +1,6 @@
 {
   "name": "svelte-app",
-  "version": "1.0.0",
+  "version": "23.8.28",
   "scripts": {
     "build": "rollup -c",
     "dev": "rollup -c -w",
@@ -11,6 +11,7 @@
     "@rollup/plugin-commonjs": "^14.0.0",
     "@rollup/plugin-node-resolve": "^8.0.0",
     "@rollup/plugin-typescript": "^5.0.2",
+    "@tesd-tech/ps-package": "^23.8.34",
     "@tsconfig/svelte": "^1.0.10",
     "rollup": "^2.3.4",
     "rollup-plugin-livereload": "^1.0.0",
