@@ -73,57 +73,55 @@
   }
 </script>
 
-<style lang="scss">
-  *,
-  *:before,
-  *:after {
-    box-sizing: border-box;
+<style>
+  :global(body) {
+    font-family: 'Open Sans', sans-serif;
+    margin: 0;
+    padding: 0;
   }
 
   .background {
-    --bg-color: transparent;
-    --text-color: white;
-    --primary-color: #002e6e;
-
-    &.dark {
-      --bg-color: #0a3056;
-      --text-color: #333;
-      --primary-color: #c0e2ec;
-    }
-
-    background-color: var(--bg-color);
-    color: var(--text-color);
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-gap: 20px;
     padding: 20px;
+    background-color: #f5f5f5;
   }
 
   .data {
-    background-color: var(--primary-color);
-    border: 1px solid;
-    border-color: var(--text-color);
-    padding: 10px;
+    background-color: white;
     border-radius: 6px;
-    margin: 0 auto;
-    max-width: 900px;
+    padding: 20px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+  }
 
-    &__title {
-      margin-bottom: 20px;
-      font-size: 23px;
-    }
-    &__description {
-      font-size: 18px;
-    }
+  .data__name {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+
+  .data__description {
+    font-size: 16px;
+    margin-bottom: 5px;
+  }
+
+  .data__key {
+    font-weight: bold;
   }
 
   .btn {
-    width: 100%;
+    display: inline-block;
+    padding: 10px 20px;
     border-radius: 6px;
-    background-color: slategray;
+    background-color: #007bff;
     color: white;
-    cursor: pointer;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+  }
 
-    .bp-medium-up & {
-      width: 100px;
-    }
+  .btn:hover {
+    background-color: #0069d9;
   }
 </style>
 
@@ -136,9 +134,36 @@
     {#if data}
       {#each Object.entries(data) as [key, student]}
         <div class="data">
-          {student.first_name} {student.last_name}
+          {student.LAST_NAME}, {student.FIRST_NAME} {student.NICKNAME || ''}
           <hr>
-          {#each Object.entries(student) as [k, v]}
+          <div>
+            Grade: {student.GRADE_LEVEL}, {student.STUDENT_NUMBER}
+          </div>
+          <div>
+            Fall: {student.FALL_SPORTS || ''}
+          </div>
+          <div>
+            Winter: {student.WINTER_SPORTS || ''}
+          </div>
+          <div>
+            Spring: {student.SPRING_SPORTS || ''}
+          </div>
+          <hr>
+          <textarea name="" id="" cols="30" rows="5"></textarea>
+          {student.CONTACT_PHONE || ''}
+          {student.PORTAL_EMAIL || ''}
+
+          <button class="button">Email Guardian</button>
+          <hr>
+          <div>
+            <label for="IMPACT">Impact</label>
+            <input type="checkbox" name="IMPACT">
+            <label for="IMPACT_DATE">Date</label>
+            <input type="date" name="IMPACT_DATE">
+          </div>
+
+
+          {#each Object.entries(student.FORM_PACKET) as [k, v]}
             <p class="data__description">{k}: {v}</p>
           {/each}
         </div>

@@ -1,0 +1,14 @@
+{
+  "pages": [
+	{
+	  "htmlID": "navSvelteTest",
+	  "title": "Svelte Test",
+	  "version": "23.6.8",
+	  "contextType": "student",
+	  "requiredContext": "student",
+	  "sortOrder": 200,
+	  "pageURL": "/admin/students/svelte_test.html?frn=~(studentfrn)",
+	  "parentHTMLID": "navStudentProfileSection"
+	}
+  ]
+}

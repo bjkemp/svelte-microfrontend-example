@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta name="Author" content="Benjamin Kemp, TESD">
+  <meta name="Version" content="0.0.1 - 02/19/2019">
+  <meta name="description"
+    content="First release of Student Summary page based on Jason Springel's Counselor Dashboard">
+
+  <title>T/Etech IS-Svelte</title>
+  ~[wc:UI_js_includes]
+  ~[wc:commonscripts]
+
+  <link rel="stylesheet" type="text/css" href="/scripts/AcademicPlanner.css" />
+  <link href="/images/css/screen.css" rel="stylesheet" media="screen">
+  <link href="/images/css/print.css" rel="stylesheet" media="print">
+
+  ~[get_js_texts:psx.js.scripts.commonscripts.]
+  <script type="text/javascript" src="/scripts/commonscripts.js"></script>
+  ~[wc:get_js_texts_div_popup]
+</head>
+
+<body>
+
+  ~[wc:admin_header_frame_css]<!-- breadcrumb start --><a href="/admin/home.html" target="_top">Start Page</a> &gt; <a
+    href="home.html?selectstudent=nosearch" target="_top">Student Selection</a> &gt; Student
+  Summary<!-- breadcrumb end -->~[wc:admin_navigation_frame_css]
+  ~[wc:title_student_begin_css]Svelte Test~[wc:title_student_end_css]
+
+  <is-svelte dataid="1234" theme="light" baseapiurl="" preview="false"></is-svelte>
+
+  ~[wc:admin_footer_frame_css]
+
+</body>
+
+</html>
